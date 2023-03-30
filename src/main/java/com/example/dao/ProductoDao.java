@@ -48,18 +48,18 @@ public interface ProductoDao extends JpaRepository<Producto, Long> {
       */
 
      //REcupera lista de productos ordenados
-    @Query(value = "select from Producto p left join fetch p.presentacion") //consultas a las entidades hql
+    @Query(value = "select p from Producto p left join fetch p.presentacion") //consultas a las entidades hql
      public List<Producto> findAll(Sort sort);
 
 
     //recupera una pagina de producto
-    @Query(value = "select from Producto p left join fetch p.presentacion",
-     countQuery = "select count(p) from Producto p left join left join p.presentacion")
+    @Query(value = "select p from Producto p left join fetch p.presentacion",
+     countQuery = "select count(p) from Producto p left join p.presentacion")
      public Page<Producto> findAll(Pageable pageable);
 
     //El metodo siguiente recupera el producto por ID, para que nos traiga presentacion tambien
 
-    @Query(value = "select from Producto p left join fetch p.presentacion where p.id= :id")
+    @Query(value = "select p from Producto p left join fetch p.presentacion where p.id= :id")
     
     public Producto findById(long id);
 
