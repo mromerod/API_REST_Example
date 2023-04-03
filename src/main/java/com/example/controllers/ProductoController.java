@@ -1,5 +1,6 @@
 package com.example.controllers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,10 +25,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.entities.Producto;
 import com.example.services.ProductoService;
+import com.example.utilities.FileUploadUtil;
 
 import jakarta.validation.Valid;
 
@@ -52,6 +56,9 @@ public class ProductoController {
 
     @Autowired
     private ProductoService productoService;
+
+    @Autowired
+    private FileUploadUtil fileUploadUtil;
 
     //El metodo siguiente va a responder a una peticion request del tipo 
     //http://localhost8080/productos?page=3&size=4 (3 paginas con 4 productos cada una)
@@ -146,10 +153,13 @@ return responseEntity;
     
 /**
  *Guardar  un producto nuevo en la base de datos
+ * @throws IOException
  */
-@PostMapping //porque recibe los datos del formulario
+@PostMapping(consumes = "multipart/form-data")
 @Transactional
-public ResponseEntity<Map<String, Object>> insert(@Valid @RequestBody Producto producto, BindingResult result) {
+public ResponseEntity<Map<String, Object>> insert(
+    @Valid @RequestPart(name = "producto") Producto producto, BindingResult result,
+    @RequestPart(name = "file") MultipartFile file) throws IOException {
 
 Map<String, Object> responseAsMap = new HashMap<>();
 ResponseEntity <Map<String,Object>> responseEntity = null;
@@ -178,8 +188,14 @@ ResponseEntity <Map<String,Object>> responseEntity = null;
 
  }
 
- //Si no hay errores 
+ //Si no hay errores ,se guarda si previamente nos han enviado una imagen
 
+ if(!file.isEmpty()){
+   
+  String fileCode = fileUploadUtil.saveFile(file.getOriginalFilename(), file);
+  producto.setImagenProducto(fileCode+ "-" + file.getOriginalFilename());
+
+ }
  Producto productoDB = productoService.save(producto);
  try {
     if(productoDB != null){
