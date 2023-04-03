@@ -2,8 +2,6 @@ package com.example.entities;
 
 import java.io.Serializable;
 
-import org.hibernate.annotations.ManyToAny;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
